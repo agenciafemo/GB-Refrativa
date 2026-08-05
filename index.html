@@ -14,8 +14,13 @@
   <meta name="theme-color"   content="#3DAEBB" />
   <title>Cirurgia Refrativa a Laser em Criciúma | Dra. Gabriela Zambon, Oftalmologista · CRM 24359-SC</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/@mux/mux-player@3" defer></script>
+
+  <link rel="canonical" href="https://refrativa.dragabrielazambon.com.br/" />
+
   <!-- Open Graph / WhatsApp / redes sociais -->
   <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://refrativa.dragabrielazambon.com.br/" />
   <meta property="og:title"       content="Cirurgia Refrativa a Laser em Criciúma | Dra. Gabriela Zambon, Oftalmologista" />
   <meta property="og:description" content="Especialista em Cirurgia Refrativa em Criciúma/SC. Avaliação completa para LASIK, PRK e SMILE. Correção de miopia, hipermetropia, astigmatismo. CRM 24359-SC." />
   <meta property="og:image"       content="https://image.mux.com/tGAML9LVNN01601QkPUi2KtfMEd3dH6QvrQhLkHC6tSNQ/thumbnail.png?width=1280&height=720&time=16.5&fit_mode=preserve" />
@@ -305,41 +310,52 @@
       margin: 0 auto 46px; line-height: 1.72;
     }
 
-    /* Vídeo placeholder */
+    /* Vídeo hero — Mux Player */
     .video-wrap { max-width: 700px; margin: 0 auto 46px; }
     .video-box {
       position: relative; width: 100%; aspect-ratio: 16/9;
       background: var(--dk-mid);
       border-radius: 18px; border: 1px solid rgba(61,174,187,.3);
-      overflow: hidden; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 14px;
-      cursor: pointer; transition: border-color var(--t), box-shadow var(--t);
+      overflow: hidden;
+      transition: border-color var(--t), box-shadow var(--t);
     }
     .video-box:hover {
       border-color: var(--teal);
       box-shadow: 0 0 40px rgba(61,174,187,.18);
     }
-    .vb-iris-bg {
-      position: absolute; inset: 0;
+    /* Mux Player — mantém apenas o botão de play/pause nativo */
+    #hero-video {
+      --media-object-fit: cover;
+      --title-display: none;
+      --time-display: none;
+      --duration-display: none;
+      --time-range: none;
+      --volume-range: none;
+      --mute-button: none;
+      --captions-button: none;
+      --airplay-button: none;
+      --pip-button: none;
+      --cast-button: none;
+      --playback-rate-button: none;
+      --rendition-selectmenu: none;
+      --fullscreen-button: none;
+    }
+    .video-ctrl {
+      position: absolute; z-index: 5; top: 12px;
       display: flex; align-items: center; justify-content: center;
-      pointer-events: none; opacity: .15;
+      height: 34px; padding: 0 10px; min-width: 34px;
+      background: rgba(15,64,85,.55); backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,.18); border-radius: 999px;
+      color: #fff; cursor: pointer;
+      transition: background var(--t), border-color var(--t);
     }
-    .vb-iris-bg svg { width: 240px; height: 240px; }
-    .vb-play {
-      position: relative; z-index: 2;
-      width: 76px; height: 76px; border-radius: 50%;
-      background: var(--g-iris); display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 0 14px rgba(61,174,187,.12), 0 0 0 28px rgba(61,174,187,.06);
-      transition: transform var(--t), box-shadow var(--t);
-    }
-    .video-box:hover .vb-play {
-      transform: scale(1.08);
-      box-shadow: 0 0 0 18px rgba(61,174,187,.18), 0 0 0 36px rgba(61,174,187,.08);
-    }
-    .vb-play svg { width: 28px; height: 28px; margin-left: 4px; color: #fff; }
-    .vb-texts { position: relative; z-index: 2; text-align: center; }
-    .vb-title { font-family: var(--f-h); font-size: .9rem; font-weight: 600; color: rgba(255,255,255,.9); letter-spacing: .03em; }
-    .vb-sub   { font-size: .78rem; color: rgba(255,255,255,.45); margin-top: 4px; }
+    .video-ctrl:hover { background: rgba(15,64,85,.8); border-color: rgba(255,255,255,.35); }
+    .video-ctrl--mute  { right: 12px; padding: 0; }
+    .video-ctrl--speed { right: 54px; font-family: var(--f-h); font-size: .78rem; font-weight: 600; letter-spacing: .02em; }
+    .video-ctrl svg { width: 18px; height: 18px; }
+    .video-ctrl--mute .ico-mute { display: none; }
+    .video-ctrl--mute[aria-pressed="true"] .ico-unmute { display: none; }
+    .video-ctrl--mute[aria-pressed="true"] .ico-mute   { display: block; }
 
     .hero-cta-block { display: flex; flex-direction: column; align-items: center; gap: 10px; }
     .hero-cta-note  { font-size: .84rem; color: var(--muted); font-style: italic; }
@@ -773,8 +789,8 @@
     <!-- ════════════ SEÇÃO 1 — HERO ════════════ -->
     <section class="hero" id="hero" aria-labelledby="hero-h1">
 
-      <img id="hero-eye-img-left" class="hero-eye hero-eye--left" src="OLHO.png" alt="" aria-hidden="true" />
-      <img id="hero-eye-img" class="hero-eye" src="OLHO.png" alt="" aria-hidden="true" />
+      <img id="hero-eye-img-left" class="hero-eye hero-eye--left" src="OLHO.png" width="700" height="875" alt="" aria-hidden="true" />
+      <img id="hero-eye-img" class="hero-eye" src="OLHO.png" width="700" height="875" alt="" aria-hidden="true" />
 
       <div class="wrap">
         <div class="hero-content">
@@ -793,25 +809,21 @@
             Avaliação completa para correção definitiva da visão por cirurgia refrativa a laser em Criciúma.
           </p>
 
-          <!-- Placeholder de vídeo — substituir pelo Mux Player quando o vídeo estiver disponível -->
           <div class="video-wrap fi d2">
-            <div class="video-box" role="img" aria-label="Vídeo sobre Cirurgia Refrativa com Dra. Gabriela Zambon">
-              <div class="vb-iris-bg" aria-hidden="true">
-                <svg viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <ellipse cx="120" cy="120" rx="115" ry="68" fill="rgba(61,174,187,.08)" stroke="rgba(61,174,187,.3)" stroke-width="1.5"/>
-                  <circle cx="120" cy="120" r="68"  fill="none" stroke="rgba(61,174,187,.2)"  stroke-width="1.5"/>
-                  <circle cx="120" cy="120" r="46"  fill="rgba(61,174,187,.06)" stroke="rgba(61,174,187,.25)" stroke-width="2"/>
-                  <circle cx="120" cy="120" r="24"  fill="rgba(255,255,255,.08)"/>
-                  <circle cx="120" cy="120" r="10"  fill="rgba(255,255,255,.12)"/>
-                </svg>
-              </div>
-              <div class="vb-play" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              </div>
-              <div class="vb-texts">
-                <p class="vb-title">Cirurgia Refrativa a Laser</p>
-                <p class="vb-sub">Dra. Gabriela Zambon, Oftalmologista</p>
-              </div>
+            <div class="video-box">
+              <mux-player
+                id="hero-video"
+                playback-id="Iy6b5GZqzsnq53tVeu02any7zkXpzplgcLGp6UQ6mFWA"
+                metadata-video-title="REFRATIVA"
+                stream-type="on-demand"
+                title=""
+                style="width:100%; height:100%; position:absolute; inset:0;"
+              ></mux-player>
+              <button type="button" id="hero-video-mute" class="video-ctrl video-ctrl--mute" aria-label="Silenciar vídeo" aria-pressed="false">
+                <svg class="ico-mute" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>
+                <svg class="ico-unmute" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+              </button>
+              <button type="button" id="hero-video-speed" class="video-ctrl video-ctrl--speed" aria-label="Alterar velocidade de reprodução">1.0x</button>
             </div>
           </div>
 
@@ -1024,6 +1036,7 @@
 
           <div class="fi">
             <img src="ZAMBON.JPG" alt="Dra. Gabriela Zambon, oftalmologista especialista em cirurgia refrativa em Criciúma"
+                 width="900" height="600" loading="lazy" decoding="async"
                  style="border-radius:20px; width:100%; max-width:360px; object-fit:cover; display:block;" />
           </div>
 
@@ -1181,7 +1194,8 @@
             Dra. Gabriela Zambon<br />
             <span>Médica Oftalmologista</span><br />
             CRM 24359-SC<br />
-            RQE 16629
+            RQE 16629<br />
+            <a href="https://dragabrielazambon.com.br/" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:underline;">Site oficial</a>
           </p>
         </div>
 
@@ -1249,6 +1263,30 @@
         }, 150);
       }
       setTimeout(blink, 3500 + Math.random() * 500);
+    })();
+
+    // Controles customizados do vídeo do hero (mute e velocidade)
+    (function(){
+      var player   = document.getElementById('hero-video');
+      var muteBtn  = document.getElementById('hero-video-mute');
+      var speedBtn = document.getElementById('hero-video-speed');
+      if (!player || !muteBtn || !speedBtn) return;
+
+      var speeds = [1, 1.5, 2];
+      var speedIndex = 0;
+
+      muteBtn.addEventListener('click', function(){
+        player.muted = !player.muted;
+        muteBtn.setAttribute('aria-pressed', player.muted ? 'true' : 'false');
+        muteBtn.setAttribute('aria-label', player.muted ? 'Ativar som do vídeo' : 'Silenciar vídeo');
+      });
+
+      speedBtn.addEventListener('click', function(){
+        speedIndex = (speedIndex + 1) % speeds.length;
+        var rate = speeds[speedIndex];
+        player.playbackRate = rate;
+        speedBtn.textContent = rate.toFixed(1) + 'x';
+      });
     })();
 
     // Carrossel — loop infinito com clones
