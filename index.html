@@ -332,6 +332,8 @@
       color: var(--text); letter-spacing: -.015em;
       margin-bottom: 22px;
     }
+    /* Cada <span> dentro do h1 vira uma linha própria — use exatamente
+       o número de spans igual ao número de linhas desejado. */
     .hero-h1 span { display: block; }
     .hero-h1 em { font-style: normal; color: var(--teal-mid); }
     .hero-sub {
@@ -414,9 +416,8 @@
     .dor-trans-h {
       font-family: var(--f-h);
       font-size: clamp(1.3rem, 2.8vw, 1.75rem);
-      font-weight: 700; color: var(--text); margin-bottom: 10px;
+      font-weight: 700; color: var(--text);
     }
-    .dor-trans-sub { font-size: .97rem; color: var(--muted); }
 
     /* Carrossel */
     .sint-carousel-wrap { position: relative; padding: 0 52px; }
@@ -830,9 +831,8 @@
           </span>
 
           <h1 class="hero-h1 fi d1" id="hero-h1">
-            <span>Cansado de depender</span>
-            <span>de <em>óculos e lentes</em></span>
-            <span>de contato todos os dias?</span>
+            <span>Cansado de depender de <em>óculos</em></span>
+            <span><em>e lentes</em> de contato todos os dias?</span>
           </h1>
 
           <p class="hero-sub fi d2">
@@ -911,7 +911,6 @@
 
         <div class="dor-trans fi d1">
           <h3 class="dor-trans-h">Você se reconhece em alguma destas situações?</h3>
-          <p class="dor-trans-sub">Esses são os principais motivos que levam pacientes a buscar a cirurgia refrativa. Talvez seja a hora de descobrir se ela é para você.</p>
         </div>
 
         <div class="sint-carousel-wrap fi d2" aria-label="Situações comuns de candidatos à cirurgia refrativa">
@@ -1326,7 +1325,7 @@
       });
     })();
 
-    // Carrossel — loop infinito com clones
+    // Carrossel — deslocamento contínuo e fluido (sem paradas entre passos)
     (function(){
       var viewport  = document.querySelector('.sint-viewport');
       var track     = document.querySelector('.sint-track');
@@ -1335,24 +1334,19 @@
       var arrowNext = document.querySelector('.sint-arrow--next');
       if (!track || !viewport) return;
 
-      var CLONE = 3;
-      var INTERVAL = 3500;
+      var SPEED = 32; // px por segundo
 
       var origCards = Array.from(track.children);
       var N = origCards.length;
+      // duplica o conjunto inteiro uma vez para permitir loop contínuo e imperceptível
+      origCards.forEach(function(c) { track.appendChild(c.cloneNode(true)); });
 
-      origCards.slice(N - CLONE).forEach(function(c) {
-        track.insertBefore(c.cloneNode(true), track.firstChild);
-      });
-      origCards.slice(0, CLONE).forEach(function(c) {
-        track.appendChild(c.cloneNode(true));
-      });
-
-      var TOTAL = CLONE + N + CLONE;
-      var pos = CLONE;
-      var realIdx = 0;
-      var locked = false;
-      var timer = null;
+      var cardPx   = 0;
+      var loopPx   = 0;
+      var offset   = 0;
+      var paused   = false;
+      var lastTime = null;
+      var rafId    = null;
 
       function nv() {
         if (window.innerWidth >= 1024) return 3;
@@ -1360,59 +1354,46 @@
         return 1;
       }
 
-      function cardPx() { return viewport.offsetWidth / nv(); }
-
       function setLayout() {
-        var cp = cardPx();
-        track.style.width = (cp * TOTAL) + 'px';
-        Array.from(track.children).forEach(function(c) { c.style.width = cp + 'px'; });
-      }
-
-      function render(animate) {
-        track.style.transition = animate ? 'transform 0.5s ease' : 'none';
-        track.style.transform  = 'translateX(' + (-(pos * cardPx())) + 'px)';
+        cardPx = viewport.offsetWidth / nv();
+        loopPx = cardPx * N;
+        track.style.width = (cardPx * N * 2) + 'px';
+        Array.from(track.children).forEach(function(c) { c.style.width = cardPx + 'px'; });
       }
 
       function updateDots() {
         if (!dotsWrap) return;
+        var idx = Math.round(offset / cardPx) % N;
         dotsWrap.querySelectorAll('.sint-dot-btn').forEach(function(d, i) {
-          d.classList.toggle('active', i === realIdx);
+          d.classList.toggle('active', i === idx);
         });
       }
 
-      function advance(dir) {
-        if (locked) return;
-        pos     += dir;
-        realIdx  = ((realIdx + dir) % N + N) % N;
-        render(true);
-        updateDots();
-        if (pos >= CLONE + N) {
-          locked = true;
-          setTimeout(function() {
-            pos = CLONE + (pos - (CLONE + N));
-            render(false);
-            locked = false;
-          }, 510);
-        } else if (pos < CLONE) {
-          locked = true;
-          setTimeout(function() {
-            pos = CLONE + N - (CLONE - pos);
-            render(false);
-            locked = false;
-          }, 510);
+      function tick(t) {
+        if (lastTime === null) lastTime = t;
+        var dt = (t - lastTime) / 1000;
+        lastTime = t;
+        if (!paused) {
+          offset += SPEED * dt;
+          if (offset >= loopPx) offset -= loopPx;
+          track.style.transform = 'translateX(' + (-offset) + 'px)';
+          updateDots();
         }
+        rafId = requestAnimationFrame(tick);
       }
 
-      function goToReal(idx) {
-        if (locked) return;
-        pos     = CLONE + idx;
-        realIdx = idx;
-        render(true);
+      function jumpTo(newOffset) {
+        paused = true;
+        offset = ((newOffset % loopPx) + loopPx) % loopPx;
+        track.style.transition = 'transform .6s cubic-bezier(.4,0,.2,1)';
+        track.style.transform  = 'translateX(' + (-offset) + 'px)';
         updateDots();
+        setTimeout(function() {
+          track.style.transition = 'none';
+          lastTime = null;
+          paused = false;
+        }, 620);
       }
-
-      function startAuto() { timer = setInterval(function(){ advance(1); }, INTERVAL); }
-      function stopAuto()  { clearInterval(timer); }
 
       if (dotsWrap) {
         for (var i = 0; i < N; i++) {
@@ -1420,31 +1401,35 @@
           dot.className = 'sint-dot-btn';
           dot.setAttribute('aria-label', 'Item ' + (i + 1));
           dot.setAttribute('role', 'tab');
-          (function(idx){ dot.addEventListener('click', function(){ stopAuto(); goToReal(idx); startAuto(); }); })(i);
+          (function(idx){ dot.addEventListener('click', function(){ jumpTo(idx * cardPx); }); })(i);
           dotsWrap.appendChild(dot);
         }
       }
 
-      if (arrowPrev) arrowPrev.addEventListener('click', function(){ stopAuto(); advance(-1); startAuto(); });
-      if (arrowNext) arrowNext.addEventListener('click', function(){ stopAuto(); advance(1);  startAuto(); });
+      if (arrowPrev) arrowPrev.addEventListener('click', function(){ jumpTo(offset - cardPx); });
+      if (arrowNext) arrowNext.addEventListener('click', function(){ jumpTo(offset + cardPx); });
 
-      viewport.addEventListener('mouseenter', stopAuto);
-      viewport.addEventListener('mouseleave', startAuto);
+      viewport.addEventListener('mouseenter', function(){ paused = true; });
+      viewport.addEventListener('mouseleave', function(){ lastTime = null; paused = false; });
 
       var tsX = 0;
-      viewport.addEventListener('touchstart', function(e){ tsX = e.touches[0].clientX; stopAuto(); }, { passive: true });
+      viewport.addEventListener('touchstart', function(e){ tsX = e.touches[0].clientX; paused = true; }, { passive: true });
       viewport.addEventListener('touchend',   function(e){
         var diff = tsX - e.changedTouches[0].clientX;
-        if (Math.abs(diff) > 40) advance(diff > 0 ? 1 : -1);
-        startAuto();
+        if (Math.abs(diff) > 40) { jumpTo(offset + (diff > 0 ? cardPx : -cardPx)); }
+        else { lastTime = null; paused = false; }
       }, { passive: true });
 
-      window.addEventListener('resize', function(){ setLayout(); render(false); });
+      window.addEventListener('resize', function(){
+        var idx = Math.round(offset / cardPx) || 0;
+        setLayout();
+        offset = idx * cardPx;
+        track.style.transform = 'translateX(' + (-offset) + 'px)';
+      });
 
       setLayout();
-      render(false);
       updateDots();
-      startAuto();
+      rafId = requestAnimationFrame(tick);
     })();
 
     // Acordeão de horários
