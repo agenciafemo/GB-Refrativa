@@ -1611,5 +1611,76 @@
     </div>
   </div>
 
+  <!-- ════════════════════════════════════════════════
+       RASTREAMENTO — CLIQUES NO WHATSAPP
+       Em cada clique de WhatsApp dispara:
+         1. `whatsapp_click` no dataLayer (disponivel para o GTM)
+         2. `whatsapp_click` no GA4 (analise de comportamento)
+         3. a conversao do Google Ads, direto via gtag
+       ════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* Identifica a página de origem no relatorio. Trocar em cada LP:
+       'refrativa' | 'olho-seco' | 'institucional' */
+    var ORIGEM = 'refrativa';
+
+    /* Conversao do Google Ads — acao "Clique WhatsApp - Refrativa" */
+    var CONVERSAO = 'AW-717719624/p8cFCIy8p90cEMiQntYC';
+
+    var SELETOR = 'a[href*="wa.me"], a[href*="api.whatsapp.com"], a[href^="whatsapp:"]';
+
+    var LOCAIS = {
+      'hero':              'hero',
+      'identificacao-dor': 'secao-dor',
+      'abordagem-medica':  'secao-abordagem',
+      'sobre-a-medica':    'secao-sobre',
+      'agendar':           'cta-final'
+    };
+
+    function localDoClique(el) {
+      if (el.classList.contains('wa-float')) return 'botao-flutuante';
+      if (el.classList.contains('hd-cta'))   return 'cabecalho';
+      var sec = el.closest('section');
+      if (sec && sec.id) return LOCAIS[sec.id] || sec.id;
+      if (el.closest('footer')) return 'rodape';
+      return 'indefinido';
+    }
+
+    window.dataLayer = window.dataLayer || [];
+
+    document.addEventListener('click', function (ev) {
+      var alvo = ev.target;
+      if (!alvo || typeof alvo.closest !== 'function') return;
+
+      var link = alvo.closest(SELETOR);
+      if (!link) return;
+
+      var local = localDoClique(link);
+
+      window.dataLayer.push({
+        event:     'whatsapp_click',
+        wa_origem: ORIGEM,
+        wa_local:  local,
+        wa_url:    link.href
+      });
+
+      if (typeof window.gtag === 'function') {
+        /* GA4 — analise de comportamento */
+        window.gtag('event', 'whatsapp_click', {
+          wa_origem: ORIGEM,
+          wa_local:  local
+        });
+
+        /* Google Ads — conversao */
+        window.gtag('event', 'conversion', {
+          send_to: CONVERSAO
+        });
+      }
+    }, true);
+  })();
+  </script>
+
 </body>
 </html>
